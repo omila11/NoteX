@@ -85,13 +85,13 @@ function Signup() {
                     <form onSubmit={handleSubmit} className="bg-slate-800 rounded-lg p-8 shadow-xl border border-slate-700">
                        
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-2">Full Name</label>
+                            <label className="block text-sm font-medium mb-2">Name</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                placeholder="John Doe"
+                                placeholder="ABC Perera"
                                 disabled={loading}
                             />
                         </div>
@@ -104,7 +104,7 @@ function Signup() {
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                placeholder="you@example.com"
+                                placeholder="perera@gmail.com"
                                 disabled={loading}
                             />
                         </div>
