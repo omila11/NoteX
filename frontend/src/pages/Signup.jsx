@@ -63,7 +63,7 @@ function Signup() {
 
     return (
         <div className="min-h-screen bg-slate-900 text-white">
-            {/* Header */}
+            
             <nav className="flex items-center justify-between px-8 py-4 border-b border-slate-700">
                 <Link to="/" className="flex items-center gap-2">
                     <div className="text-blue-500 text-2xl">📝</div>
@@ -72,18 +72,18 @@ function Signup() {
                 <a href="#" className="text-slate-300 hover:text-white transition">Help</a>
             </nav>
 
-            {/* Main Content */}
+            
             <div className="flex justify-center items-center min-h-[calc(100vh-80px)] px-4 py-12">
                 <div className="w-full max-w-md">
-                    {/* Title */}
+                    
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold mb-2">Create your account</h1>
                         <p className="text-slate-400">Start organizing your thoughts today</p>
                     </div>
 
-                    {/* Form */}
+                    
                     <form onSubmit={handleSubmit} className="bg-slate-800 rounded-lg p-8 shadow-xl border border-slate-700">
-                        {/* Name Field */}
+                       
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2">Full Name</label>
                             <input
@@ -96,7 +96,7 @@ function Signup() {
                             />
                         </div>
 
-                        {/* Email Field */}
+                        
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2">Email Address</label>
                             <input
@@ -109,7 +109,7 @@ function Signup() {
                             />
                         </div>
 
-                        {/* Password Field */}
+                       
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2">Password</label>
                             <div className="relative">
@@ -131,7 +131,7 @@ function Signup() {
                             </div>
                         </div>
 
-                        {/* Confirm Password Field */}
+                        
                         <div className="mb-6">
                             <label className="block text-sm font-medium mb-2">Confirm Password</label>
                             <div className="relative">
@@ -153,7 +153,7 @@ function Signup() {
                             </div>
                         </div>
 
-                        {/* Submit Button */}
+                        
                         <button
                             type="submit"
                             disabled={loading}
@@ -162,14 +162,14 @@ function Signup() {
                             {loading ? 'Creating account...' : 'Create Account'}
                         </button>
 
-                        {/* Divider */}
+                        
                         <div className="flex items-center my-6">
                             <div className="flex-1 border-t border-slate-600"></div>
                             <span className="px-4 text-slate-400 text-sm">or</span>
                             <div className="flex-1 border-t border-slate-600"></div>
                         </div>
 
-                        {/* Google Sign Up */}
+                       
                         <button
                             type="button"
                             onClick={handleGoogleSignup}
@@ -185,7 +185,7 @@ function Signup() {
                         </button>
                     </form>
 
-                    {/* Sign In Link */}
+                    
                     <p className="text-center mt-6 text-slate-400">
                         Already have an account?{' '}
                         <Link to="/login" className="text-blue-500 hover:text-blue-400 font-semibold">

@@ -7,7 +7,7 @@ import notex3 from '../assets/images/notex3.jfif';
 function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white">
-      {/* Navigation */}
+      
       <nav className="flex items-center justify-between px-8 py-4 border-b border-slate-700">
         <div className="flex items-center gap-2">
           <div className="text-blue-500 text-2xl">📝</div>
@@ -22,7 +22,7 @@ function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      
       <section className="px-8 py-20 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -65,7 +65,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* Core Features Section */}
+      
       <section id="features" className="px-8 py-20 bg-slate-800/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -110,7 +110,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* Designed for Clarity Section */}
+      
       <section className="px-8 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -137,7 +137,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
+      
       <footer className="border-t border-slate-700 px-8 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">

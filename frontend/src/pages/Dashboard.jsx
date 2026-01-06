@@ -21,9 +21,9 @@ const Dashboard = () => {
     const [viewingNote, setViewingNote] = useState(null);
     const [activeFilter, setActiveFilter] = useState('All');
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [currentView, setCurrentView] = useState('notes'); // 'notes', 'favorites', 'trash'
+    const [currentView, setCurrentView] = useState('notes'); 
     const [showSettings, setShowSettings] = useState(false);
-    const [sortBy, setSortBy] = useState('dateModified'); // 'dateModified', 'dateCreated', 'title'
+    const [sortBy, setSortBy] = useState('dateModified'); 
     const [showSortMenu, setShowSortMenu] = useState(false);
     const [settings, setSettings] = useState({
         theme: localStorage.getItem('theme') || 'dark',
@@ -66,7 +66,7 @@ const Dashboard = () => {
             const matchesFilter = activeFilter === 'All' || 
                 (note.tags && note.tags.includes(activeFilter));
             
-            // Filter by view
+            
             if (currentView === 'favorites') {
                 return matchesSearch && matchesFilter && note.isFavorite;
             } else if (currentView === 'trash') {
@@ -76,7 +76,7 @@ const Dashboard = () => {
             return matchesSearch && matchesFilter;
         });
 
-        // Sort the filtered notes
+        
         const sorted = [...filtered].sort((a, b) => {
             if (sortBy === 'dateModified') {
                 return new Date(b.updatedAt) - new Date(a.updatedAt);
@@ -112,7 +112,7 @@ const Dashboard = () => {
                 toast.error('Session expired. Please login again.');
                 handleLogout();
             } else {
-                // Set empty notes instead of showing error for now
+                
                 setNotes([]);
                 setFilteredNotes([]);
             }

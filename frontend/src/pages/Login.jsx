@@ -49,7 +49,7 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-slate-900 text-white">
-            {/* Header */}
+            
             <nav className="flex items-center justify-between px-8 py-4 border-b border-slate-700">
                 <Link to="/" className="flex items-center gap-2">
                     <div className="text-blue-500 text-2xl">📝</div>
@@ -58,26 +58,26 @@ const Login = () => {
                 <a href="#" className="text-slate-300 hover:text-white transition text-sm">Contact Support</a>
             </nav>
 
-            {/* Main Content */}
+        
             <div className="flex justify-center items-center min-h-[calc(100vh-80px)] px-4 py-12">
                 <div className="w-full max-w-md">
-                    {/* Form Card */}
+                   
                     <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-8 border border-slate-700/50 shadow-xl">
-                        {/* Lock Icon */}
+                        
                         <div className="flex justify-center mb-6">
                             <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center">
                                 <FaLock className="text-blue-500 text-2xl" />
                             </div>
                         </div>
 
-                        {/* Title */}
+                        
                         <div className="text-center mb-6">
                             <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
                             <p className="text-slate-400 text-sm">Organize your thoughts privately.</p>
                         </div>
 
                         <form onSubmit={handleSubmit}>
-                            {/* Email Field */}
+                            
                             <div className='mb-4'>
                                 <label className='block text-sm font-medium mb-2'>Email Address</label>
                                 <div className="relative">
@@ -95,7 +95,7 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            {/* Password Field */}
+                            
                             <div className='mb-4'>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className='block text-sm font-medium'>Password</label>
@@ -123,7 +123,7 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            {/* Sign In Button */}
+                            
                             <button 
                                 className='w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition font-semibold disabled:bg-blue-400 disabled:cursor-not-allowed mt-6'
                                 type='submit'
@@ -133,14 +133,14 @@ const Login = () => {
                             </button>
                         </form>
 
-                        {/* Divider */}
+                        
                         <div className="flex items-center gap-4 my-6">
                             <div className="flex-1 h-px bg-slate-600"></div>
                             <span className="text-slate-400 text-xs">Or continue with</span>
                             <div className="flex-1 h-px bg-slate-600"></div>
                         </div>
 
-                        {/* Social Login Buttons */}
+                        
                         <div className="grid grid-cols-2 gap-3">
                             <button 
                                 onClick={handleGoogleLogin}
@@ -158,13 +158,13 @@ const Login = () => {
                             </button>
                         </div>
 
-                        {/* Sign Up Link */}
+                        
                         <p className='mt-6 text-center text-slate-400 text-sm'>
                             Don't have an account? <Link to="/signup" className='text-blue-400 hover:text-blue-300 font-medium'>Sign up</Link>
                         </p>
                     </div>
 
-                    {/* Footer Links */}
+                    
                     <div className="flex items-center justify-center gap-4 mt-8 text-slate-500 text-xs">
                         <a href="#" className="hover:text-slate-400">Privacy Policy</a>
                         <span>•</span>
