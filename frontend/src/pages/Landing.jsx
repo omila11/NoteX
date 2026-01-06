@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import { FaLock, FaEye, FaSync } from 'react-icons/fa';
+import notex1 from '../assets/images/notex1.jfif';
+import notex2 from '../assets/images/notex2.jfif';
+import notex3 from '../assets/images/notex3.jfif';
 
 function Landing() {
   return (
@@ -12,7 +15,6 @@ function Landing() {
         </div>
         <div className="flex items-center gap-6">
           <a href="#features" className="hover:text-blue-400 transition">Features</a>
-          <a href="#pricing" className="hover:text-blue-400 transition">Pricing</a>
           <Link to="/login" className="hover:text-blue-400 transition">Log in</Link>
           <Link to="/signup" className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition">
             Get Started
@@ -47,9 +49,13 @@ function Landing() {
           </div>
           <div className="relative">
             <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg p-8 shadow-2xl">
-              <div className="bg-slate-600 h-48 rounded-lg mb-4"></div>
+              <div className="h-48 rounded-lg mb-4 overflow-hidden">
+                <img src={notex2} alt="NoteX Preview" className="w-full h-full object-cover" />
+              </div>
               <div className="flex gap-4">
-                <div className="bg-slate-600 h-32 flex-1 rounded-lg"></div>
+                <div className="h-32 flex-1 rounded-lg overflow-hidden">
+                  <img src={notex3} alt="NoteX Features" className="w-full h-full object-cover" />
+                </div>
                 <div className="w-20 h-32 bg-white rounded-lg flex items-center justify-center">
                   <div className="text-4xl">🌱</div>
                 </div>
@@ -118,82 +124,14 @@ function Landing() {
                 See how it works →
               </a>
             </div>
-            <div className="relative">
-              <div className="bg-gradient-to-br from-orange-300 to-orange-400 rounded-lg p-12 shadow-2xl">
-                <div className="bg-white rounded-lg p-6 shadow-xl transform rotate-2">
-                  <div className="bg-slate-100 h-8 rounded mb-4"></div>
-                  <div className="space-y-2 mb-6">
-                    <div className="bg-slate-200 h-3 rounded w-full"></div>
-                    <div className="bg-slate-200 h-3 rounded w-5/6"></div>
-                    <div className="bg-slate-200 h-3 rounded w-4/6"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-slate-100 h-6 rounded"></div>
-                    <div className="bg-slate-100 h-6 rounded"></div>
-                    <div className="bg-slate-100 h-6 rounded"></div>
-                    <div className="bg-slate-100 h-6 rounded"></div>
-                  </div>
-                </div>
+            <div className="relative max-w-lg mx-auto">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-2 shadow-2xl">
+                <img 
+                  src={notex1} 
+                  alt="NoteX Dashboard Preview" 
+                  className="w-full h-auto max-h-80 object-contain rounded-lg shadow-xl"
+                />
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="pricing" className="px-8 py-20 bg-slate-800/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Trusted by Thinkers</h2>
-            <p className="text-slate-300 text-lg">
-              Join thousands organizing their life.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-xl font-bold">
-                  A
-                </div>
-                <div>
-                  <div className="font-bold">Alex M.</div>
-                  <div className="text-blue-400 text-sm">Developer</div>
-                </div>
-              </div>
-              <p className="text-slate-300 italic">
-                "Finally, a note app that respects my privacy. The interface is gorgeous and gets out of the way."
-              </p>
-            </div>
-            
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-xl font-bold">
-                  S
-                </div>
-                <div>
-                  <div className="font-bold">Sarah K.</div>
-                  <div className="text-blue-400 text-sm">Writer</div>
-                </div>
-              </div>
-              <p className="text-slate-300 italic">
-                "I've moved all my journals here. The focus mode is a game changer for my morning pages."
-              </p>
-            </div>
-            
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-xl font-bold">
-                  D
-                </div>
-                <div>
-                  <div className="font-bold">David R.</div>
-                  <div className="text-blue-400 text-sm">Student</div>
-                </div>
-              </div>
-              <p className="text-slate-300 italic">
-                "Simple, fast, and secure. Exactly what I was looking for to store my code snippets and ideas."
-              </p>
             </div>
           </div>
         </div>

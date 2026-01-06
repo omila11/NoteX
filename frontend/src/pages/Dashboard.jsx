@@ -22,7 +22,20 @@ const Dashboard = () => {
     const [activeFilter, setActiveFilter] = useState('All');
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [currentView, setCurrentView] = useState('notes'); // 'notes', 'favorites', 'trash'
+    const [showSettings, setShowSettings] = useState(false);
+    const [sortBy, setSortBy] = useState('dateModified'); // 'dateModified', 'dateCreated', 'title'
+    const [showSortMenu, setShowSortMenu] = useState(false);
+    const [settings, setSettings] = useState({
+        theme: localStorage.getItem('theme') || 'dark',
+        fontSize: localStorage.getItem('fontSize') || 'medium',
+        defaultView: localStorage.getItem('defaultView') || 'notes',
+        compactMode: localStorage.getItem('compactMode') === 'true'
+    });
     const navigate = useNavigate();
+
+    useEffect(() => {
+        document.documentElement.classList.toggle('light-theme', settings.theme === 'light');
+    }, [settings.theme]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -62,8 +75,21 @@ const Dashboard = () => {
             
             return matchesSearch && matchesFilter;
         });
-        setFilteredNotes(filtered);
-    }, [searchQuery, notes, activeFilter, currentView]);
+
+        // Sort the filtered notes
+        const sorted = [...filtered].sort((a, b) => {
+            if (sortBy === 'dateModified') {
+                return new Date(b.updatedAt) - new Date(a.updatedAt);
+            } else if (sortBy === 'dateCreated') {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            } else if (sortBy === 'title') {
+                return a.title.localeCompare(b.title);
+            }
+            return 0;
+        });
+
+        setFilteredNotes(sorted);
+    }, [searchQuery, notes, activeFilter, currentView, sortBy]);
 
     const fetchNotes = async () => {
         try {
@@ -99,6 +125,16 @@ const Dashboard = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
+    };
+
+    const updateSettings = (key, value) => {
+        const newSettings = { ...settings, [key]: value };
+        setSettings(newSettings);
+        localStorage.setItem(key, value);
+        if (key === 'defaultView') {
+            setCurrentView(value);
+        }
+        toast.success('Settings updated');
     };
 
     const openModal = (note = null) => {
@@ -298,51 +334,86 @@ const Dashboard = () => {
 
     console.log('Dashboard rendering with notes:', notes.length);
 
+    const getThemeClasses = () => {
+        const isLight = settings.theme === 'light';
+        return {
+            bg: isLight ? 'bg-gray-50' : 'bg-slate-900',
+            text: isLight ? 'text-gray-900' : 'text-white',
+            sidebar: isLight ? 'bg-white border-gray-200' : 'bg-slate-900 border-slate-700',
+            cardBg: isLight ? 'bg-white border-gray-200' : 'bg-slate-800 border-slate-700',
+            cardHover: isLight ? 'hover:border-gray-300' : 'hover:border-slate-600',
+            inputBg: isLight ? 'bg-gray-100 border-gray-300' : 'bg-slate-800 border-slate-700',
+            modalBg: isLight ? 'bg-white border-gray-200' : 'bg-slate-800 border-slate-700',
+            textSecondary: isLight ? 'text-gray-600' : 'text-slate-400',
+            textTertiary: isLight ? 'text-gray-500' : 'text-slate-500',
+            hoverBg: isLight ? 'hover:bg-gray-100' : 'hover:bg-slate-800',
+            buttonBg: isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-slate-700 hover:bg-slate-600',
+            border: isLight ? 'border-gray-200' : 'border-slate-700'
+        };
+    };
+
+    const getFontSizeClasses = () => {
+        const sizes = {
+            small: { title: 'text-base', content: 'text-sm', heading: 'text-2xl' },
+            medium: { title: 'text-lg', content: 'text-sm', heading: 'text-3xl' },
+            large: { title: 'text-xl', content: 'text-base', heading: 'text-4xl' }
+        };
+        return sizes[settings.fontSize];
+    };
+
+    const getCompactClasses = () => {
+        return settings.compactMode ? { padding: 'p-3', gap: 'gap-3' } : { padding: 'p-5', gap: 'gap-4' };
+    };
+
+    const theme = getThemeClasses();
+    const fontSize = getFontSizeClasses();
+    const compact = getCompactClasses();
+
     return (
-        <div className="flex min-h-screen bg-slate-900 text-white">
-            <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} bg-slate-900 border-r border-slate-700 transition-all duration-300 overflow-hidden flex flex-col`}>
+        <div className={`flex min-h-screen ${theme.bg} ${theme.text}`}>
+            <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} ${theme.sidebar} border-r transition-all duration-300 overflow-hidden flex flex-col`}>
                 <div className="p-6 flex-1">
                     <div className="flex items-center gap-2 mb-8">
                         <div className="text-blue-500 text-2xl">📝</div>
                         <span className="text-xl font-bold">NoteX</span>
                     </div>
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-slate-500 uppercase mb-3">MENU</h3>
+                        <h3 className={`text-xs font-semibold ${theme.textTertiary} uppercase mb-3`}>MENU</h3>
                         <nav className="space-y-1">
-                            <button onClick={() => { setCurrentView('notes'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-600/30 transition ${currentView === 'notes' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:bg-slate-800'}`}>
+                            <button onClick={() => { setCurrentView('notes'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${currentView === 'notes' ? 'bg-blue-600/20 text-blue-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <FiFile size={18} />
                                 <span>All Notes</span>
                             </button>
-                            <button onClick={() => { setCurrentView('favorites'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition ${currentView === 'favorites' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400'}`}>
+                            <button onClick={() => { setCurrentView('favorites'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${currentView === 'favorites' ? 'bg-blue-600/20 text-blue-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <FiStar size={18} />
                                 <span>Favorites</span>
                             </button>
-                            <button onClick={() => { setCurrentView('trash'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition ${currentView === 'trash' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400'}`}>
+                            <button onClick={() => { setCurrentView('trash'); setActiveFilter('All'); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${currentView === 'trash' ? 'bg-blue-600/20 text-blue-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <FiTrash size={18} />
                                 <span>Trash</span>
                             </button>
                         </nav>
                     </div>
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-slate-500 uppercase mb-3">TAGS</h3>
+                        <h3 className={`text-xs font-semibold ${theme.textTertiary} uppercase mb-3`}>TAGS</h3>
                         <nav className="space-y-1">
-                            <button onClick={() => setActiveFilter('Personal')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Personal' ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:bg-slate-800'}`}>
+                            <button onClick={() => setActiveFilter('Personal')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Personal' ? 'bg-blue-600/20 text-blue-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                                 <span>Personal</span>
                             </button>
-                            <button onClick={() => setActiveFilter('Work')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Work' ? 'bg-purple-600/20 text-purple-400' : 'text-slate-400 hover:bg-slate-800'}`}>
+                            <button onClick={() => setActiveFilter('Work')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Work' ? 'bg-purple-600/20 text-purple-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                                 <span>Work</span>
                             </button>
-                            <button onClick={() => setActiveFilter('Reading')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Reading' ? 'bg-green-600/20 text-green-400' : 'text-slate-400 hover:bg-slate-800'}`}>
+                            <button onClick={() => setActiveFilter('Reading')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition ${activeFilter === 'Reading' ? 'bg-green-600/20 text-green-400' : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
                                 <span>Reading</span>
                             </button>
                         </nav>
                     </div>
                 </div>
-                <div className="border-t border-slate-700">
-                    <button className="w-full flex items-center gap-3 px-6 py-4 text-slate-400 hover:bg-slate-800 transition">
+                <div className={`border-t ${theme.border}`}>
+                    <button onClick={() => setShowSettings(true)} className={`w-full flex items-center gap-3 px-6 py-4 ${theme.textSecondary} ${theme.hoverBg} transition`}>
                         <FiSettings size={18} />
                         <span>Settings</span>
                     </button>
@@ -352,31 +423,29 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-1">
                             <div className="font-semibold text-sm">{user?.name || 'Alex Morgan'}</div>
-                            <div className="text-xs text-blue-400">Pro Plan</div>
                         </div>
                     </div>
                 </div>
             </aside>
             <main className="flex-1 flex flex-col">
-                <header className="border-b border-slate-700 bg-slate-900">
+                <header className={`border-b ${theme.border} ${theme.bg}`}>
                     <div className="px-6 py-4 flex items-center gap-4">
-                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-slate-400 hover:text-white transition md:hidden">
+                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className={`${theme.textSecondary} hover:${theme.text} transition md:hidden`}>
                             <FiMenu size={24} />
                         </button>
                         <div className="flex-1 max-w-xl">
                             <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-                                <input type="text" placeholder="Search titles or content..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500" />
+                                <FiSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${theme.textSecondary}`} size={18} />
+                                <input type="text" placeholder="Search titles or content..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`w-full pl-10 pr-4 py-2 ${theme.inputBg} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme.text} placeholder-gray-500`} />
                             </div>
                         </div>
-                        <button className="p-2 text-slate-400 hover:text-white transition">
-                            <FiGrid size={20} />
-                        </button>
-                        <button onClick={() => openModal()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium">
-                            <FiPlus size={18} />
-                            Create New Note
-                        </button>
-                        <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition" title="Logout">
+                        {currentView !== 'trash' && (
+                            <button onClick={() => openModal()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                                <FiPlus size={18} />
+                                Create New Note
+                            </button>
+                        )}
+                        <button onClick={handleLogout} className={`p-2 ${theme.textSecondary} hover:text-red-400 transition`} title="Logout">
                             <FiLogOut size={20} />
                         </button>
                     </div>
@@ -384,46 +453,79 @@ const Dashboard = () => {
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-2">
-                            <h1 className="text-3xl font-bold">All Notes <span className="text-slate-500">({filteredNotes.length})</span></h1>
-                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                            <h1 className={`${fontSize.heading} font-bold`}>All Notes <span className={theme.textTertiary}>({filteredNotes.length})</span></h1>
+                            <div className={`flex items-center gap-2 text-sm ${theme.textSecondary} relative`}>
                                 <span>Sort by:</span>
-                                <button className="flex items-center gap-1 hover:text-white transition">
-                                    Date Modified
+                                <button 
+                                    onClick={() => setShowSortMenu(!showSortMenu)}
+                                    className={`flex items-center gap-1 hover:${theme.text} transition`}
+                                >
+                                    {sortBy === 'dateModified' ? 'Date Modified' : sortBy === 'dateCreated' ? 'Date Created' : 'Title'}
                                     <FiChevronDown size={16} />
                                 </button>
+                                {showSortMenu && (
+                                    <div className={`absolute top-full right-0 mt-2 ${theme.modalBg} border ${theme.border} rounded-lg shadow-xl z-10 py-2 min-w-[160px]`}>
+                                        <button
+                                            onClick={() => { setSortBy('dateModified'); setShowSortMenu(false); }}
+                                            className={`w-full text-left px-4 py-2 ${theme.hoverBg} transition ${sortBy === 'dateModified' ? theme.text : theme.textSecondary}`}
+                                        >
+                                            Date Modified
+                                        </button>
+                                        <button
+                                            onClick={() => { setSortBy('dateCreated'); setShowSortMenu(false); }}
+                                            className={`w-full text-left px-4 py-2 ${theme.hoverBg} transition ${sortBy === 'dateCreated' ? theme.text : theme.textSecondary}`}
+                                        >
+                                            Date Created
+                                        </button>
+                                        <button
+                                            onClick={() => { setSortBy('title'); setShowSortMenu(false); }}
+                                            className={`w-full text-left px-4 py-2 ${theme.hoverBg} transition ${sortBy === 'title' ? theme.text : theme.textSecondary}`}
+                                        >
+                                            Title (A-Z)
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <p className="text-slate-400">View and manage your personal thoughts and projects.</p>
+                        <p className={theme.textSecondary}>View and manage your personal thoughts.</p>
                     </div>
                     <div className="flex gap-3 mb-6">
-                        <button onClick={() => setActiveFilter('All')} className={`px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'All' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>All</button>
-                        <button onClick={() => setActiveFilter('Work')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Work' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                        <button onClick={() => setActiveFilter('All')} className={`px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'All' ? `${theme.buttonBg} ${theme.text}` : `${theme.textSecondary} ${theme.hoverBg}`}`}>All</button>
+                        <button onClick={() => setActiveFilter('Work')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Work' ? `${theme.buttonBg} ${theme.text}` : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                             <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                             Work
                         </button>
-                        <button onClick={() => setActiveFilter('Personal')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Personal' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                        <button onClick={() => setActiveFilter('Personal')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Personal' ? `${theme.buttonBg} ${theme.text}` : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                             Personal
                         </button>
-                        <button onClick={() => setActiveFilter('Reading')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Reading' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                        <button onClick={() => setActiveFilter('Reading')} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${activeFilter === 'Reading' ? `${theme.buttonBg} ${theme.text}` : `${theme.textSecondary} ${theme.hoverBg}`}`}>
                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
                             Reading
                         </button>
                     </div>
                     {filteredNotes.length === 0 ? (
                         <div className="text-center py-20">
-                            <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <FiFile size={32} className="text-slate-600" />
+                            <div className={`w-20 h-20 ${theme.cardBg} border rounded-full flex items-center justify-center mx-auto mb-4`}>
+                                {currentView === 'trash' ? (
+                                    <FiTrash size={32} className={theme.textSecondary} />
+                                ) : (
+                                    <FiFile size={32} className={theme.textSecondary} />
+                                )}
                             </div>
-                            <p className="text-slate-400 text-lg mb-4">No notes yet. Create your first note!</p>
-                            <button onClick={() => openModal()} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">Create Note</button>
+                            <p className={`${theme.textSecondary} ${fontSize.title} mb-4`}>
+                                {currentView === 'trash' ? 'Trash is empty' : currentView === 'favorites' ? 'No favorite notes yet' : 'No notes yet. Create your first note!'}
+                            </p>
+                            {currentView === 'notes' && (
+                                <button onClick={() => openModal()} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">Create Note</button>
+                            )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${compact.gap}`}>
                             {filteredNotes.map((note) => {
                                 const { icon: Icon, color, iconColor } = getNoteIcon(note.tags);
                                 return (
-                                    <div key={note._id} className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-slate-600 transition group relative">
+                                    <div key={note._id} className={`${theme.cardBg} rounded-lg ${compact.padding} border ${theme.cardHover} transition group relative`}>
                                         <div className="flex items-start justify-between mb-4">
                                             <div className={`w-10 h-10 ${color} rounded-lg flex items-center justify-center`}>
                                                 <Icon className={iconColor} size={20} />
@@ -438,10 +540,10 @@ const Dashboard = () => {
                                             )}
                                         </div>
                                         <div onClick={() => setViewingNote(note)} className="cursor-pointer">
-                                            <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-blue-400 transition">{note.title}</h3>
-                                            <p className="text-slate-400 text-sm mb-4 line-clamp-3">{note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                                            <h3 className={`${fontSize.title} font-semibold mb-2 line-clamp-2 group-hover:text-blue-400 transition`}>{note.title}</h3>
+                                            <p className={`${theme.textSecondary} ${fontSize.content} mb-4 line-clamp-3`}>{note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-500">{formatDate(note.updatedAt)}</span>
+                                                <span className={theme.textTertiary}>{formatDate(note.updatedAt)}</span>
                                                 {note.tags && note.tags.length > 0 && (
                                                     <span className={`px-2 py-1 rounded border ${getTagColor(note.tags[0])}`}>{note.tags[0]}</span>
                                                 )}
@@ -472,32 +574,32 @@ const Dashboard = () => {
             </main>
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
-                    <div className="bg-slate-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-700">
+                    <div className={`${theme.modalBg} rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border`}>
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-2xl font-bold text-white">{editingNote ? 'Edit Note' : 'Create New Note'}</h3>
-                                <button onClick={closeModal} className="text-slate-400 hover:text-white text-2xl"><FiX /></button>
+                                <h3 className={`text-2xl font-bold ${theme.text}`}>{editingNote ? 'Edit Note' : 'Create New Note'}</h3>
+                                <button onClick={closeModal} className={`${theme.textSecondary} hover:${theme.text} text-2xl`}><FiX /></button>
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
-                                    <label className="block text-slate-300 font-medium mb-2">Title</label>
-                                    <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter note title" className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500" required />
+                                    <label className={`block ${theme.text} font-medium mb-2`}>Title</label>
+                                    <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter note title" className={`w-full px-4 py-2 ${theme.inputBg} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme.text} placeholder-gray-500`} required />
                                 </div>
                                 <div className="mb-4">
-                                    <label className="block text-slate-300 font-medium mb-2">Content</label>
-                                    <textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your note here..." rows="10" className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-white placeholder-slate-500" required />
+                                    <label className={`block ${theme.text} font-medium mb-2`}>Content</label>
+                                    <textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your note here..." rows="10" className={`w-full px-4 py-2 ${theme.inputBg} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${theme.text} placeholder-gray-500`} required />
                                 </div>
                                 <div className="mb-6">
-                                    <label className="block text-slate-300 font-medium mb-2">Tags</label>
+                                    <label className={`block ${theme.text} font-medium mb-2`}>Tags</label>
                                     <div className="flex flex-wrap gap-2">
                                         {['Work', 'Personal', 'Reading', 'Ideas', 'Family', 'Shopping'].map(tag => (
-                                            <button key={tag} type="button" onClick={() => { if (formData.tags.includes(tag)) { setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) }); } else { setFormData({ ...formData, tags: [...formData.tags, tag] }); } }} className={`px-3 py-1 rounded-lg text-sm transition border ${formData.tags.includes(tag) ? getTagColor(tag) : 'bg-slate-700 text-slate-400 hover:bg-slate-600 border-slate-600'}`}>{tag}</button>
+                                            <button key={tag} type="button" onClick={() => { if (formData.tags.includes(tag)) { setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) }); } else { setFormData({ ...formData, tags: [...formData.tags, tag] }); } }} className={`px-3 py-1 rounded-lg text-sm transition border ${formData.tags.includes(tag) ? getTagColor(tag) : `${theme.buttonBg} ${theme.textSecondary} ${theme.border}`}`}>{tag}</button>
                                         ))}
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
-                                    <button type="submit" className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition font-semibold"><FiSave /> Save Note</button>
-                                    <button type="button" onClick={closeModal} className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg transition font-semibold"><FiX /> Cancel</button>
+                                    <button type="submit" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium"><FiSave size={18} /> Save</button>
+                                    <button type="button" onClick={closeModal} className={`w-10 h-10 flex items-center justify-center ${theme.buttonBg} text-white rounded-lg transition`} title="Cancel"><FiX size={18} /></button>
                                 </div>
                             </form>
                         </div>
@@ -506,17 +608,17 @@ const Dashboard = () => {
             )}
             {viewingNote && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4" onClick={() => setViewingNote(null)}>
-                    <div className="bg-slate-800 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-slate-700" onClick={(e) => e.stopPropagation()}>
+                    <div className={`${theme.modalBg} rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border`} onClick={(e) => e.stopPropagation()}>
                         <div className="p-6">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex-1">
-                                    <h2 className="text-3xl font-bold text-white mb-2">{viewingNote.title}</h2>
-                                    <p className="text-sm text-slate-400">{formatDate(viewingNote.updatedAt)}</p>
+                                    <h2 className={`text-3xl font-bold ${theme.text} mb-2`}>{viewingNote.title}</h2>
+                                    <p className={`text-sm ${theme.textSecondary}`}>{formatDate(viewingNote.updatedAt)}</p>
                                 </div>
-                                <button onClick={() => setViewingNote(null)} className="text-slate-400 hover:text-white text-2xl"><FiX /></button>
+                                <button onClick={() => setViewingNote(null)} className={`${theme.textSecondary} hover:${theme.text} text-2xl`}><FiX /></button>
                             </div>
                             <div className="prose max-w-none">
-                                <div className="text-slate-300 whitespace-pre-wrap text-lg leading-relaxed">{viewingNote.content}</div>
+                                <div className={`${theme.text} whitespace-pre-wrap ${fontSize.title} leading-relaxed`}>{viewingNote.content}</div>
                             </div>
                             {viewingNote.tags && viewingNote.tags.length > 0 && (
                                 <div className="mt-6 flex flex-wrap gap-2">
@@ -526,8 +628,138 @@ const Dashboard = () => {
                                 </div>
                             )}
                             <div className="mt-6 flex gap-3">
-                                <button onClick={() => { setViewingNote(null); openModal(viewingNote); }} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition"><FiEdit2 /> Edit Note</button>
-                                <button onClick={() => { setViewingNote(null); handleDelete(viewingNote._id); }} className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition"><FiTrash2 /> Delete</button>
+                                <button onClick={() => { setViewingNote(null); openModal(viewingNote); }} className="w-10 h-10 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition" title="Edit Note"><FiEdit2 size={18} /></button>
+                                <button onClick={() => { setViewingNote(null); handleDelete(viewingNote._id); }} className="w-10 h-10 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-lg transition" title="Delete"><FiTrash2 size={18} /></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showSettings && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
+                    <div className={`${theme.modalBg} rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border`}>
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className={`text-2xl font-bold ${theme.text}`}>Settings</h3>
+                                <button onClick={() => setShowSettings(false)} className={`${theme.textSecondary} hover:${theme.text} text-2xl`}><FiX /></button>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <div>
+                                    <label className={`block ${theme.text} font-medium mb-3`}>Theme</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={() => updateSettings('theme', 'dark')}
+                                            className={`p-4 rounded-lg border-2 transition ${
+                                                settings.theme === 'dark'
+                                                    ? 'border-blue-500 bg-blue-500/20'
+                                                    : `border-slate-600 ${theme.buttonBg}`
+                                            }`}
+                                        >
+                                            <div className={`${theme.text} font-medium mb-1`}>🌙 Dark Mode</div>
+                                            <div className={`${theme.textSecondary} text-sm`}>Easy on the eyes</div>
+                                        </button>
+                                        <button
+                                            onClick={() => updateSettings('theme', 'light')}
+                                            className={`p-4 rounded-lg border-2 transition ${
+                                                settings.theme === 'light'
+                                                    ? 'border-blue-500 bg-blue-500/20'
+                                                    : `border-slate-600 ${theme.buttonBg}`
+                                            }`}
+                                        >
+                                            <div className={`${theme.text} font-medium mb-1`}>☀️ Light Mode</div>
+                                            <div className={`${theme.textSecondary} text-sm`}>Bright and clear</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className={`block ${theme.text} font-medium mb-3`}>Font Size</label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {['small', 'medium', 'large'].map(size => (
+                                            <button
+                                                key={size}
+                                                onClick={() => updateSettings('fontSize', size)}
+                                                className={`p-3 rounded-lg border-2 transition capitalize ${
+                                                    settings.fontSize === size
+                                                        ? `border-blue-500 bg-blue-500/20 ${theme.text}`
+                                                        : `border-slate-600 ${theme.buttonBg} ${theme.textSecondary}`
+                                                }`}
+                                            >
+                                                {size}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className={`block ${theme.text} font-medium mb-3`}>Default View</label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <button
+                                            onClick={() => updateSettings('defaultView', 'notes')}
+                                            className={`p-3 rounded-lg border-2 transition ${
+                                                settings.defaultView === 'notes'
+                                                    ? `border-blue-500 bg-blue-500/20 ${theme.text}`
+                                                    : `border-slate-600 ${theme.buttonBg} ${theme.textSecondary}`
+                                            }`}
+                                        >
+                                            <FiFile className="mx-auto mb-1" size={20} />
+                                            All Notes
+                                        </button>
+                                        <button
+                                            onClick={() => updateSettings('defaultView', 'favorites')}
+                                            className={`p-3 rounded-lg border-2 transition ${
+                                                settings.defaultView === 'favorites'
+                                                    ? `border-blue-500 bg-blue-500/20 ${theme.text}`
+                                                    : `border-slate-600 ${theme.buttonBg} ${theme.textSecondary}`
+                                            }`}
+                                        >
+                                            <FiStar className="mx-auto mb-1" size={20} />
+                                            Favorites
+                                        </button>
+                                        <button
+                                            onClick={() => updateSettings('defaultView', 'trash')}
+                                            className={`p-3 rounded-lg border-2 transition ${
+                                                settings.defaultView === 'trash'
+                                                    ? `border-blue-500 bg-blue-500/20 ${theme.text}`
+                                                    : `border-slate-600 ${theme.buttonBg} ${theme.textSecondary}`
+                                            }`}
+                                        >
+                                            <FiTrash className="mx-auto mb-1" size={20} />
+                                            Trash
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className={`flex items-center justify-between p-4 ${theme.buttonBg} rounded-lg`}>
+                                        <div>
+                                            <div className={`${theme.text} font-medium mb-1`}>Compact Mode</div>
+                                            <div className={`${theme.textSecondary} text-sm`}>Show more notes on screen</div>
+                                        </div>
+                                        <button
+                                            onClick={() => updateSettings('compactMode', !settings.compactMode)}
+                                            className={`relative w-14 h-7 rounded-full transition ${
+                                                settings.compactMode ? 'bg-blue-600' : 'bg-slate-600'
+                                            }`}
+                                        >
+                                            <div
+                                                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
+                                                    settings.compactMode ? 'transform translate-x-7' : ''
+                                                }`}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
+                                <button
+                                    onClick={() => setShowSettings(false)}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition font-medium"
+                                >
+                                    Done
+                                </button>
                             </div>
                         </div>
                     </div>
