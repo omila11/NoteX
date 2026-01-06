@@ -2,8 +2,6 @@
 
 A modern, distraction-free note-taking application with a beautiful UI and powerful features. Organize your thoughts, ideas, and daily journals with ease.
 
-![NoteX Banner](frontend/src/assets/images/notex1.jfif)
-
 ## ✨ Features
 
 ### Core Functionality
